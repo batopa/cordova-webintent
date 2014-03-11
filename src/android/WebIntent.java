@@ -3,6 +3,8 @@ package com.borismus.webintent;
 import java.util.HashMap;
 import java.util.Map;
 
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
 import org.apache.cordova.CordovaActivity;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,7 +37,7 @@ public class WebIntent extends CordovaPlugin {
 
     //public boolean execute(String action, JSONArray args, String callbackId) {
     @Override
-    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) {
+    public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         try {
             this.callbackContext = callbackContext;
 
@@ -123,8 +125,7 @@ public class WebIntent extends CordovaPlugin {
                 callbackContext.sendPluginResult(result);
                 return true;
                 //return result;
-            } else if (action.equals("sendBroadcast")) 
-            {
+            } else if (action.equals("sendBroadcast")) {
                 if (args.length() != 1) {
                     //return new PluginResult(PluginResult.Status.INVALID_ACTION);
                     callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.INVALID_ACTION));
@@ -154,6 +155,12 @@ public class WebIntent extends CordovaPlugin {
             }
             //return new PluginResult(PluginResult.Status.INVALID_ACTION);
             callbackContext.sendPluginResult(new PluginResult(PluginResult.Status.INVALID_ACTION));
+            return false;
+        } catch (ActivityNotFoundException e) {
+            JSONObject jsonError = new JSONObject();
+            jsonError.put("type", "APP_NOT_FOUND");
+            jsonError.put("message", e.getMessage());
+            callbackContext.error(jsonError);
             return false;
         } catch (JSONException e) {
             e.printStackTrace();
